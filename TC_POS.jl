@@ -1,6 +1,5 @@
 using HypothesisTests
 using PlotlyJS
-using ORCA
 using Distributed
 addprocs()
 @everywhere begin
@@ -165,7 +164,7 @@ function aucPlot()
     data    = [trace1, trace4, trace10, trace6, trace7, trace8, trace9, trace5, trace2, trace3]
     Plot(data, layout)
 end
-p = aucPlot()
+aucPlot()
 
 function aucPlot1()
     trace3  = scatter(x=5:5:100, y=out_auc[3, :], mode="lines", name="z")
@@ -177,7 +176,7 @@ function aucPlot1()
     data    = [trace11, trace6, trace3]
     Plot(data, layout)
 end
-q = aucPlot1()
+aucPlot1()
 
 @everywhere function confSim_weighted(ν::Int64)
     @assert ν > 3 # no. of worlds with a minimum of 4
@@ -238,7 +237,7 @@ out_ar1 = run_sim_weighted(250);
 
 out_auc0 = mean(out_ar1, dims=3);
 
-function aucPlot()
+function aucPlot2()
     trace1  = scatter(x=5:5:100, y=out_auc0[1, :], mode="lines", name="c")
     trace2  = scatter(x=5:5:100, y=out_auc0[2, :], mode="lines", name="s")
     trace3  = scatter(x=5:5:100, y=out_auc0[3, :], mode="lines", name="z")
@@ -255,9 +254,9 @@ function aucPlot()
     data    = [trace1, trace4, trace10, trace6, trace7, trace8, trace9, trace5, trace2, trace3]
     Plot(data, layout)
 end
-p = aucPlot()
+aucPlot2()
 
-function aucPlot1()
+function aucPlot3()
     trace3  = scatter(x=5:5:100, y=out_auc0[3, :], mode="lines", name="z")
     trace11 = scatter(x=5:5:100, y=out_auc0[11, :], mode="lines", name="ch")
     trace6  = scatter(x=5:5:100, y=out_auc0[6, :], mode="lines", name="k")
@@ -267,9 +266,9 @@ function aucPlot1()
     data    = [trace11, trace6, trace3]
     Plot(data, layout)
 end
-q = aucPlot1()
+aucPlot3()
 
-function aucPlot2()
+function aucPlot4()
     trace03  = scatter(x=5:5:100, y=out_auc[3, :], mode="lines", name="z")
     trace011 = scatter(x=5:5:100, y=out_auc[11, :], mode="lines", name="ch")
     trace3  = scatter(x=5:5:100, y=out_auc0[3, :], mode="lines", name="z (weighted)")
@@ -280,4 +279,4 @@ function aucPlot2()
     data    = [trace011, trace11, trace03, trace3]
     Plot(data, layout)
 end
-q = aucPlot2()
+aucPlot4()
