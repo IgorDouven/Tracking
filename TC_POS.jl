@@ -1,8 +1,14 @@
-using HypothesisTests, PlotlyJS, ORCA
-
+using HypothesisTests
+using PlotlyJS
+using ORCA
 using Distributed
 addprocs()
-@everywhere using Distributions, DataFrames, StatsBase, RCall
+@everywhere begin
+    using Distributions
+    using DataFrames
+    using StatsBase
+    using RCall
+end
 
 @everywhere R"""
 suppressMessages(suppressWarnings(library(ROCR)))
@@ -43,9 +49,6 @@ suppressMessages(suppressWarnings(library(BayesFactor)))
         end
     end
 
-    #= in 'causality in the mind', cheng defines her measure on p230, in equations 9.1 and 9.2; note that in the second, she actually 
-    defines the 'preventive' power of the cause; this is the negative of the 'generative' power, which we need for the regressions; therefore 
-    there is no minus sign in the else clause below =# 
     function cheng(v::Vector{Float64}, X::Vector{Int64}, Z::Vector{Int64})
         notZ = setdiff(collect(1:length(v)), Z)
         return deltp(v, X, Z) >= 0 ? deltp(v, X, Z) / (1 - (sum(v[X ∩ notZ]) / sum(v[notZ]))) : deltp(v, X, Z) / (sum(v[X ∩ notZ]) / sum(v[notZ]))
@@ -90,7 +93,7 @@ end
     mr  = mort(d, ϕ, ζ)
     fn  = finch(d, ϕ, ζ)
     return b, cc, dp, cr, dc, fn, kop, lr, mr, nz, rp, che
- end;
+end
 
 @everywhere function lrMod(i::Int64, df::DataFrame)
     dfn   = DataFrame(DV = df[!, 1], IV = df[!, i + 1])
@@ -102,13 +105,13 @@ end
     auc <- performance(pred, 'auc')@y.values
     """
     return @rget auc
-end;
+end
 
 @everywhere function sims(n_worlds::Int64)
     res   = [ confSim(n_worlds) for _ in 1:1000 ]
     df_cf = DataFrame(res)
     return [ lrMod(i, df_cf)[1] for i in 1:size(df_cf, 2) - 1 ]
-end;
+end
 
 function run_sim(numb_sim::Int64)
     out_ar = Array{Float64,3}(undef, 11, 20, numb_sim)
@@ -199,13 +202,13 @@ q = aucPlot1()
     mr  = mort(d, ϕ, ζ)
     fn  = finch(d, ϕ, ζ)
     return b, cc, dp, cr, dc, fn, kop, lr, mr, nz, rp, che
- end;
+end
 
 @everywhere function sims_weighted(n_worlds::Int64)
     res   = [ confSim_weighted(n_worlds) for _ in 1:1000 ]
     df_cf = DataFrame(res)
     return [ lrMod(i, df_cf)[1] for i in 1:size(df_cf, 2) - 1 ]
-end;
+end
 
 function run_sim_weighted(numb_sim::Int64)
     out_ar = Array{Float64,3}(undef, 11, 20, numb_sim)
@@ -278,5 +281,3 @@ function aucPlot2()
     Plot(data, layout)
 end
 q = aucPlot2()
-
-
